@@ -520,6 +520,8 @@ bool Runtime::fillTaskAddressList(Task *task, NvDlaTask *dla_task)
 
         dla_task->address_list[ali].handle = hMem;
         dla_task->address_list[ali].offset = m_address[address_list_entry_id].mEntry.offset;
+        printf("dla_task id %lu has set addr id %lu: handle = %lx, offset = %u\n", dla_task->task_id, ali,
+               (uint64_t)dla_task->address_list[ali].handle, dla_task->address_list[ali].offset);
     }
 
     return true;
@@ -721,10 +723,13 @@ NvDlaError Runtime::allocateSystemMemory(void **phMem, NvU64 size, void **pData)
     NvDlaError e = NvDlaSuccess;
     void *hDla = getDLADeviceContext(m_loaded_instance);
 
+    printf("entered allocateSystemMemory()\n");
+
     /* Allocate memory for network */
     PROPAGATE_ERROR_FAIL( NvDlaAllocMem(NULL, hDla, phMem, pData, size, NvDlaHeap_System) );
     m_hmem_memory_map.insert(std::make_pair(*phMem, *pData));
-
+    printf("*phMem = %#llx, *pData = %#llx\n", (uint64_t)*phMem, (uint64_t)*pData);
+    printf("exited allocateSystemMemory()\n\n");
     return NvDlaSuccess;
 
 fail:

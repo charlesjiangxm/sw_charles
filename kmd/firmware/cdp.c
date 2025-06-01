@@ -159,6 +159,7 @@ processor_cdp_program(struct dla_processor_group *group)
 	struct dla_cdp_surface_desc *cdp_surface;
 
 	dla_debug("Enter: %s\n", __func__);
+    dla_debug("\nentered processor_cdp_program():\n");
 
 	cdp_op = &group->operation_desc->cdp_op;
 	cdp_surface = &group->surface_desc->cdp_surface;
@@ -182,20 +183,24 @@ processor_cdp_program(struct dla_processor_group *group)
 	}
 
 	/* get the addresses from task descriptor */
+    dla_debug("cdp getting input_address:\n");
 	ret = dla_read_input_address(&cdp_surface->src_data,
 						&input_address,
 						group->op_desc->index,
 						group->roi_index,
 						1);
+    dla_debug("cdp input_addr = %#lx\n\n", input_address);
 	if (ret)
 		goto exit;
 
+    dla_debug("cdp getting output_address:\n");
 	dla_get_dma_cube_address(engine->driver_context,
 				engine->task->task_data,
 				cdp_surface->dst_data.address,
 				cdp_surface->dst_data.offset,
 				(void *)&output_address,
 				DESTINATION_DMA);
+    dla_debug("cdp output_addr = %#lx\n\n", output_address);
 	if (cdp_op->lut_index >= 0) {
 		group->lut_index = cdp_op->lut_index;
 		dla_read_lut(engine, cdp_op->lut_index, (void *)&lut);

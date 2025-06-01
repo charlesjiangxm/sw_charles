@@ -791,10 +791,14 @@ dla_read_network_config(struct dla_engine *engine)
 	/**
 	 * Read surface descriptor list address from address list
 	 */
+    dla_debug("getting surface_desc_addr:\n");
+    dla_debug("before: task->surface_desc_addr = %#llx", task->surface_desc_addr);
 	ret = dla_get_dma_address(engine->driver_context, task->task_data,
 				network.surface_desc_index,
 				(void *)&task->surface_desc_addr,
 				DESTINATION_PROCESSOR);
+    dla_debug("after: task->surface_desc_addr = %#llx", task->surface_desc_addr);
+    dla_debug("\n");
 	if (ret) {
 		dla_error("Failed to read surface desc list address");
 		goto exit;
@@ -1088,6 +1092,8 @@ dla_execute_task(void *engine_context, void *task_data, void *config_data)
 		goto complete;
 	}
 
+    // this task_data is of type `struct nvdla_task`,
+    // i.e., task_data->address_list is the one prepared in umd
 	engine->task->task_data = task_data;
 	engine->config_data = config_data;
 	engine->network = &network;

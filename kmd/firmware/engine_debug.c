@@ -137,6 +137,7 @@ dla_debug_data_cube(struct dla_data_cube *cube)
 {
 	dla_debug("    type          = %u\n", cube->type);
 	dla_debug("    address       = %d\n", cube->address);
+    dla_debug("    offset        = %x\n", cube->offset);
 	dla_debug("    width         = %x\n", cube->width);
 	dla_debug("    height        = %x\n", cube->height);
 	dla_debug("    channel       = %x\n", cube->channel);
@@ -253,7 +254,7 @@ dla_debug_conv_surface_desc(struct dla_conv_surface_desc *desc, int32_t roi)
 	dla_debug("dst_data            = [ dla_data_cube =>\n");
 	dla_debug_data_cube(&desc->dst_data);
 	dla_debug("offset_u            = %lld\n", desc->offset_u);
-	dla_debug("in_line_uv_stride   = %u\n", desc->in_line_uv_stride);
+	dla_debug("in_line_uv_stride   = %u\n\n", desc->in_line_uv_stride);
 }
 
 void
@@ -309,6 +310,7 @@ dla_debug_conv_op_desc(struct dla_conv_op_desc *desc, int32_t roi)
 	dla_debug_converter(&desc->in_cvt);
 	dla_debug("out_cvt            =\n");
 	dla_debug_converter(&desc->out_cvt);
+    dla_debug("\n");
 }
 
 void

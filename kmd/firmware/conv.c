@@ -265,6 +265,7 @@ processor_conv_program(struct dla_processor_group *group)
 	struct dla_conv_surface_desc *conv_surface;
 
 	dla_trace("Enter: %s", __func__);
+    dla_debug("\nentered processor_conv_program():\n");
 
 	weight_compress_support = engine->config_data->weight_compress_support;
 	atom_size = engine->config_data->atom_size;
@@ -275,6 +276,8 @@ processor_conv_program(struct dla_processor_group *group)
 		ASSERT_GOTO((weight_compress_support), ret, ERR(INVALID_INPUT), exit);
 		ASSERT_GOTO((conv_surface->wmb_data.address != -1),
 			ret, ERR(INVALID_INPUT), exit);
+        dla_debug("conv case WEIGHT_FORMAT_COMPRESSED:\n");
+        dla_debug("conv getting wmb_address:\n");
 		dla_get_dma_cube_address(engine->driver_context,
 					engine->task->task_data,
 					conv_surface->wmb_data.address,
@@ -283,9 +286,11 @@ processor_conv_program(struct dla_processor_group *group)
 					DESTINATION_DMA);
 		CHECK_ALIGN(wmb_address, atom_size);
 		CHECK_ALIGN(conv_surface->wmb_data.size, 128);
+        dla_debug("conv wmb_addr = %#lx\n\n", wmb_address);
 
 		ASSERT_GOTO((conv_surface->wgs_data.address != -1),
 			ret, ERR(INVALID_INPUT), exit);
+        dla_debug("conv getting wgs_address:\n");
 		dla_get_dma_cube_address(engine->driver_context,
 					engine->task->task_data,
 					conv_surface->wgs_data.address,
@@ -294,36 +299,43 @@ processor_conv_program(struct dla_processor_group *group)
 					DESTINATION_DMA);
 		CHECK_ALIGN(wgs_address, atom_size);
 		CHECK_ALIGN(conv_surface->wgs_data.size, 4);
+        dla_debug("conv wgs_addr = %#lx\n\n", wgs_address);
 	}
 
 	if (conv_surface->weight_data.address != -1) {
+        dla_debug("conv getting weight_address:\n");
 		dla_get_dma_cube_address(engine->driver_context,
 					engine->task->task_data,
 					conv_surface->weight_data.address,
 					conv_surface->weight_data.offset,
 					(void *)&weight_address,
 					DESTINATION_DMA);
+        dla_debug("conv weight_addr = %#lx\n\n", weight_address);
 		CHECK_ALIGN(weight_address, atom_size);
 		CHECK_ALIGN(conv_surface->weight_data.size, 128);
 	}
 
 	if (conv_surface->dst_data.address != -1) {
+        dla_debug("conv getting output_address:\n");
 		dla_get_dma_cube_address(engine->driver_context,
 					engine->task->task_data,
 					conv_surface->dst_data.address,
 					conv_surface->dst_data.offset,
 					(void *)&output_address,
 					DESTINATION_DMA);
+        dla_debug("conv output_addr = %#lx\n\n", output_address);
 		CHECK_ALIGN(output_address, atom_size);
 		CHECK_ALIGN(conv_surface->dst_data.size, atom_size);
 		CHECK_ALIGN(conv_surface->dst_data.line_stride, atom_size);
 		CHECK_ALIGN(conv_surface->dst_data.surf_stride, atom_size);
 	}
 
+    dla_debug("conv getting input_address:\n");
 	ret = dla_read_input_address(&conv_surface->src_data, &input_address,
 					group->op_desc->index,
 					group->roi_index,
 					map_img_fmt[conv_op->data_format][1]);
+    dla_debug("conv input_addr = %#lx\n\n", input_address);
 	if (ret)
 		goto exit;
 

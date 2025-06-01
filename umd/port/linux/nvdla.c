@@ -59,13 +59,19 @@ static int nvdla_mem_map(void **pVirtAddr, int size, NvS64 offset, int fd, NvU32
 {
     void *ptr;
 
+    printf("entered nvdla_mem_map()\n");
+
     ptr = mmap(0, size, flags, MAP_SHARED, fd, offset);
+    printf("nvdla_mem_map: *pVirtAddr = 0x%lx, size = %d, offset = 0x%lx, fd = %d, flags = %u\n",
+           (uint64_t)ptr, size, offset, fd, flags);
     if (ptr == MAP_FAILED) {
         printf("Failed to map memory errno=%d\n", errno);
         return -1;
     }
 
     *pVirtAddr = ptr;
+
+    printf("exited nvdla_mem_map()\n\n");
 
     return 0;
 }
@@ -197,6 +203,9 @@ NvDlaSubmit(void *session_handle, void *device_handle, NvDlaTask *pTasks, NvU32 
 
             address_list[i][j].handle = (uint32_t)mem_handle->fd;
             address_list[i][j].offset = pTasks[i].address_list[j].offset;
+            // this address_list is copied into kmd in nvdla_fill_task_desc()
+            printf("address_list[%d][%d].handle = %u\n", i, j, address_list[i][j].handle);
+            printf("address_list[%d][%d].offset = %llu\n", i, j, address_list[i][j].offset);
         }
     }
 

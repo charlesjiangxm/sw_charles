@@ -281,7 +281,7 @@ void Profile::setDefaultProfile()
     setBasicProfile();
     setUseMemPool(true);
     setUseReusePooledMemory(true);
-    setUseGreedyEviction(true);
+    // setUseGreedyEviction(true);
     setCanSDPBustNOPs(true);
 }
 

@@ -93,6 +93,8 @@ static int32_t nvdla_submit(struct drm_device *drm, void *arg,
 		return -EINVAL;
 
 	/* IOCTL copy descriptors */
+    // local_task is a temporary object only used in nvdla_gem.c
+    // user_task is something submitted from runtime (umd)
 	if (copy_from_user(&local_task, (void __user *)user_task,
 			(sizeof(*user_task))))
 		return -EFAULT;
@@ -129,6 +131,8 @@ static int32_t nvdla_gem_alloc(struct nvdla_gem_object *nobj)
 
 	nobj->kvaddr = dma_alloc_attrs(drm->dev, dobj->size, &nobj->dma_addr,
 						GFP_KERNEL, nobj->dma_attrs);
+    printk("DMA paddr allocated: %#llx for vaddr %#llx\n",
+           nobj->dma_addr, (uint64_t)nobj->kvaddr);
 
 	if (!nobj->kvaddr)
 		return -ENOMEM;
@@ -350,6 +354,7 @@ static int32_t nvdla_gem_map_offset(struct drm_device *drm, void *data,
 		goto out;
 
 	args->offset = drm_vma_node_offset_addr(&dobj->vma_node);
+    printk("nvdla_gem_map_offset allocates args->offset = %#llx\n", args->offset);
 
 out:
 	drm_gem_object_unreference_unlocked(dobj);

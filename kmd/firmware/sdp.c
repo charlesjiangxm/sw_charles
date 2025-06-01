@@ -276,6 +276,7 @@ processor_sdp_program(struct dla_processor_group *group)
 	struct dla_sdp_surface_desc *sdp_surface;
 
 	dla_trace("Enter: %s", __func__);
+    dla_debug("\nentered processor_sdp_program():\n");
 	atom_size = engine->config_data->atom_size;
 
 	sdp_op = &group->operation_desc->sdp_op;
@@ -292,17 +293,22 @@ processor_sdp_program(struct dla_processor_group *group)
 
 	/* load address */
 	if (!fly) {
+        dla_debug("sdp getting src_addr:\n");
 		ret = dla_read_input_address(&sdp_surface->src_data,
 						&src_addr,
 						group->op_desc->index,
 						group->roi_index,
 					    1);
+        dla_debug("sdp src_addr = %#lx\n\n", src_addr);
 		if (ret)
 			goto exit;
 		CHECK_ALIGN(src_addr, atom_size);
-	}
+	} else {
+        dla_debug("sdp skip getting src_addr\n\n");
+    }
 
 	if (out_dma_ena) {
+        dla_debug("sdp getting dst_addr:\n");
 		dla_get_dma_cube_address(engine->driver_context,
 					engine->task->task_data,
 					sdp_surface->dst_data.address,
@@ -310,7 +316,10 @@ processor_sdp_program(struct dla_processor_group *group)
 					(void *)&dst_addr,
 					DESTINATION_DMA);
 		CHECK_ALIGN(dst_addr, atom_size);
-	}
+        dla_debug("sdp dst_addr = %#lx\n\n", dst_addr);
+	} else {
+        dla_debug("sdp skip getting dst_addr\n\n");
+    }
 
 	if (sdp_op->lut_index >= 0) {
 		group->lut_index = sdp_op->lut_index;
@@ -324,6 +333,7 @@ processor_sdp_program(struct dla_processor_group *group)
 	y_rdma_ena &= (y_op->mode != SDP_OP_PER_LAYER);
 
 	if (x1_rdma_ena) {
+        dla_debug("sdp getting x1_addr:\n");
 		dla_get_dma_cube_address(engine->driver_context,
 					engine->task->task_data,
 					sdp_surface->x1_data.address,
@@ -331,8 +341,12 @@ processor_sdp_program(struct dla_processor_group *group)
 					(void *)&x1_addr,
 					DESTINATION_DMA);
 		CHECK_ALIGN(x1_addr, atom_size);
-	}
+        dla_debug("sdp x1_addr = %#lx\n\n", x1_addr);
+	} else {
+        dla_debug("sdp skip getting x1_addr\n\n");
+    }
 	if (x2_rdma_ena) {
+        dla_debug("sdp getting x2_addr:\n");
 		dla_get_dma_cube_address(engine->driver_context,
 					engine->task->task_data,
 					sdp_surface->x2_data.address,
@@ -340,8 +354,12 @@ processor_sdp_program(struct dla_processor_group *group)
 					(void *)&x2_addr,
 					DESTINATION_DMA);
 		CHECK_ALIGN(x2_addr, atom_size);
-	}
+        dla_debug("sdp x1_addr = %#lx\n\n", x2_addr);
+	} else {
+        dla_debug("sdp skip getting x2_addr\n\n");
+    }
 	if (y_rdma_ena) {
+        dla_debug("sdp getting y_addr:\n");
 		dla_get_dma_cube_address(engine->driver_context,
 					engine->task->task_data,
 					sdp_surface->y_data.address,
@@ -349,7 +367,10 @@ processor_sdp_program(struct dla_processor_group *group)
 					(void *)&y_addr,
 					DESTINATION_DMA);
 		CHECK_ALIGN(y_addr, atom_size);
-	}
+        dla_debug("sdp x1_addr = %#lx\n\n", y_addr);
+	} else {
+        dla_debug("sdp skip getting y_addr\n\n");
+    }
 
 	reg = (map_fly[0] << SHIFT(SDP_RDMA_D_FEATURE_MODE_CFG_0, FLYING_MODE));
 	sdp_rdma_reg_write(D_FEATURE_MODE_CFG, reg);

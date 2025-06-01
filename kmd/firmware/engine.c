@@ -98,12 +98,14 @@ dla_get_dma_cube_address(void *driver_context, void *task_data,
 {
 	int32_t ret = 0;
 	uint64_t *pdst = (uint64_t *)dst_ptr;
+    dla_debug("entered dla_get_dma_cube_address(index = %d, offset = %#x):\n", index, offset);
        ret = dla_get_dma_address(driver_context, task_data, index,
 								dst_ptr, destination);
 	if (ret)
 		goto exit;
 
 	pdst[0] += offset;
+    dla_debug("back to dla_get_dma_cube_address: dst_ptr += %#lx\n", offset);
 
 exit:
 	return ret;
@@ -131,6 +133,8 @@ dla_read_input_address(struct dla_data_cube *data,
 	int32_t ret = ERR(INVALID_INPUT);
 	struct dla_engine *en = dla_get_engine();
 
+    dla_debug("entered dla_read_input_address():\n");
+
 	/**
 	 * If memory type is HW then no address required
 	 */
@@ -149,6 +153,8 @@ dla_read_input_address(struct dla_data_cube *data,
 		 * But if other parameters indicate that this is input layer
 		 * for dynamic ROI then it is an error
 		 */
+        dla_debug("passed to dla_get_dma_cube_address(data->address = %d, data->offset = %u)\n",
+                  data->address, data->offset);
 		if (en->network->dynamic_roi &&
 			en->network->input_layer == op_index)
 			goto exit;
@@ -186,6 +192,8 @@ dla_read_input_address(struct dla_data_cube *data,
 		*address = en->task->surface_addr;
 		*address += (roi_desc.top * data->line_stride) +
 						(bpp * roi_desc.left);
+        dla_debug("surface_addr = %#lx; roi_desc.top = %u, data->line_stride = %u, bpp = %u, roi_desc.left = %u\n",
+                  en->task->surface_addr, roi_desc.top, data->line_stride, bpp, roi_desc.left);
 	}
 
 exit:

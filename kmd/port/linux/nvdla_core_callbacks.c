@@ -173,14 +173,18 @@ static int32_t dla_read_dma_address(void *driver_context, void *task_data,
 			(struct nvdla_device *)driver_context;
 	struct nvdla_task *task = (struct nvdla_task *)task_data;
 
+    dla_debug("entered dla_read_dma_address(index = %d):\n", index);
+
 	if (index == -1 || index > task->num_addresses)
 		return -EINVAL;
 
 	handles = (struct nvdla_mem_handle *)task->address_list;
+    dla_debug("pass to nvdla_gem_dma_addr(fd = handles[index=%d] = %u):\n", index, handles[index].handle);
 	ret = nvdla_gem_dma_addr(nvdla_dev->drm, task->file,
 					handles[index].handle,
 					phys_addr);
 
+    dla_debug("*phys_addr = %#lx + %#lx\n", *phys_addr, handles[index].offset);
 	/* Add offset to IOVA address */
 	*phys_addr = *phys_addr + handles[index].offset;
 
@@ -195,8 +199,9 @@ static int32_t dla_read_cpu_address(void *driver_context, void *task_data,
 
 	if (index == -1 || index > task->num_addresses)
 		return -EINVAL;
-
+    dla_debug("before set: *temp = %#llx\n", *temp);
 	*temp = (uint64_t)index;
+    dla_debug("after set: *temp = %#llx\n", *temp);
 	return 0;
 }
 
@@ -205,17 +210,22 @@ int32_t dla_get_dma_address(void *driver_context, void *task_data,
 					uint32_t destination)
 {
 	int32_t ret = 0;
+    dla_debug("entered dla_get_dma_address(index = %d):\n", index);
 
 	if (destination == DESTINATION_PROCESSOR) {
+        dla_debug(" in branch dla_get_dma_address(DESTINATION_PROCESSOR):\n");
+        dla_debug("before: dst_ptr = %#llx", *(uint64_t*)dst_ptr);
 		ret = dla_read_cpu_address(driver_context, task_data,
 						index, dst_ptr);
+        dla_debug("after: dst_ptr = %#llx", *(uint64_t*)dst_ptr);
 	} else if (destination == DESTINATION_DMA) {
+        dla_debug("in branch dla_get_dma_address(DESTINATION_DMA):\n");
 		ret = dla_read_dma_address(driver_context, task_data,
 						index, dst_ptr);
 	} else {
 		ret = -EINVAL;
 	}
-
+    dla_debug("exiting dla_get_dma_address(), got dst_ptr = %llx (index = %d)\n", *(uint64_t*)dst_ptr, index);
 	return ret;
 }
 
@@ -287,6 +297,8 @@ int32_t dla_data_read(void *driver_context, void *task_data,
 		goto put_dma_buf;
 
 	ptr = dma_buf_vmap(buf);
+    dla_debug("dla_data_read(src_index = %u): mapped dma_buf(handle = %u, offset = %llu) to vaddr = %#llx\n",
+              src, handles[src].handle, handles[src].offset, (uint64_t)ptr);
 	if (!ptr) {
 		pr_err("%s: Failed to vmap dma_buf for handle=%d\n", __func__,
 						handles[src].handle);
