@@ -1,2 +1,4 @@
 .idea
 .clion.source.upload.marker
+umd/out
+kmd/out
